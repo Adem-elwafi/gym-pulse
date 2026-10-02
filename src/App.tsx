@@ -1,10 +1,12 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { HomeScreen } from './components/HomeScreen';
 import { WorkoutScreen } from './components/WorkoutScreen';
 import { HistoryScreen } from './components/HistoryScreen';
 import { RestTimerBar } from './components/RestTimerBar';
 import { useWorkoutSession } from './hooks/useWorkoutSession';
 import { useRestTimer } from './hooks/useRestTimer';
+import { useWakeLock } from './hooks/useWakeLock';
+import { unlockAudio } from './lib/audio';
 
 type Screen = 'home' | 'workout' | 'history';
 
@@ -33,6 +35,26 @@ export default function App() {
     addTime,
     changePreset,
   } = useRestTimer();
+
+  // Screen Wake Lock while a workout session is active
+  useWakeLock(session !== null);
+
+  // One-time gesture audio unlock for iOS Safari / Chrome autoplay policy
+  useEffect(() => {
+    const handleGesture = () => {
+      unlockAudio();
+    };
+
+    window.addEventListener('pointerdown', handleGesture, { once: true, passive: true });
+    window.addEventListener('touchstart', handleGesture, { once: true, passive: true });
+    window.addEventListener('click', handleGesture, { once: true, passive: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', handleGesture);
+      window.removeEventListener('touchstart', handleGesture);
+      window.removeEventListener('click', handleGesture);
+    };
+  }, []);
 
   const handleStartDay = useCallback(
     (dayId: string) => {
@@ -67,13 +89,14 @@ export default function App() {
   }, [discardSession, skipTimer]);
 
   return (
-    <div className="max-w-lg mx-auto relative">
+    <main className="max-w-lg mx-auto relative min-h-[100dvh]">
       {screen === 'home' && (
         <HomeScreen
           activeDayId={session?.dayId ?? null}
           onStart={handleStartDay}
           onResume={handleResume}
           onViewHistory={() => setScreen('history')}
+          timerActive={timerState.active}
         />
       )}
 
@@ -92,7 +115,10 @@ export default function App() {
       )}
 
       {screen === 'history' && (
-        <HistoryScreen onBack={() => setScreen('home')} />
+        <HistoryScreen
+          onBack={() => setScreen('home')}
+          timerActive={timerState.active}
+        />
       )}
 
       {/* Global rest timer – visible on all screens when active */}
@@ -106,6 +132,6 @@ export default function App() {
         onAddTime={addTime}
         onChangePreset={changePreset}
       />
-    </div>
+    </main>
   );
 }

@@ -23,14 +23,14 @@ function DayCard({ day, isActive, onStart, onResume }: DayCardProps) {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gray-900 border border-gray-800 shadow-xl active:scale-[0.98] transition-transform">
+    <div className="relative overflow-hidden rounded-2xl bg-gray-900 border border-gray-800 shadow-xl">
       {/* Gradient accent strip */}
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${dayColors[day.day]}`} />
 
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-0.5">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-0.5">
               Day {day.day}
             </p>
             <h3 className="text-lg font-bold text-white leading-tight">{day.title}</h3>
@@ -41,7 +41,7 @@ function DayCard({ day, isActive, onStart, onResume }: DayCardProps) {
           </div>
         </div>
 
-        <div className="flex gap-4 mb-4 text-sm text-gray-400">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4 text-sm text-gray-400">
           <span className="flex items-center gap-1.5">
             <Dumbbell className="w-4 h-4" />
             {totalExercises} exercises
@@ -53,9 +53,9 @@ function DayCard({ day, isActive, onStart, onResume }: DayCardProps) {
         {/* Superset preview */}
         <div className="space-y-1.5 mb-5">
           {day.supersets.map((ss) => (
-            <div key={ss.id} className="flex items-center gap-2 text-xs text-gray-500">
-              <span className="w-1.5 h-1.5 rounded-full bg-gray-600 flex-shrink-0" />
-              <span className="truncate">
+            <div key={ss.id} className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400/60 flex-shrink-0" />
+              <span className="min-w-0 truncate">
                 {ss.label}: {ss.exercises.map((e) => e.name).join(' + ')}
               </span>
             </div>
@@ -65,7 +65,7 @@ function DayCard({ day, isActive, onStart, onResume }: DayCardProps) {
         {isActive ? (
           <button
             onClick={onResume}
-            className="w-full py-3 rounded-xl bg-green-500 hover:bg-green-400 active:bg-green-600 text-black font-bold text-base flex items-center justify-center gap-2 transition-colors"
+            className="w-full py-3 rounded-xl bg-green-500 hover:bg-green-400 active:scale-[0.98] text-black font-bold text-base flex items-center justify-center gap-2 transition-all"
           >
             Resume Workout
             <ChevronRight className="w-5 h-5" />
@@ -73,7 +73,7 @@ function DayCard({ day, isActive, onStart, onResume }: DayCardProps) {
         ) : (
           <button
             onClick={() => onStart(day.id)}
-            className={`w-full py-3 rounded-xl bg-gradient-to-r ${dayColors[day.day]} hover:opacity-90 active:opacity-80 text-white font-bold text-base flex items-center justify-center gap-2 transition-opacity`}
+            className={`w-full py-3 rounded-xl bg-gradient-to-r ${dayColors[day.day]} hover:opacity-90 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 transition-all`}
           >
             Start Day {day.day}
             <ChevronRight className="w-5 h-5" />
@@ -89,13 +89,20 @@ interface HomeScreenProps {
   onStart: (dayId: string) => void;
   onResume: () => void;
   onViewHistory: () => void;
+  timerActive?: boolean;
 }
 
-export function HomeScreen({ activeDayId, onStart, onResume, onViewHistory }: HomeScreenProps) {
+export function HomeScreen({
+  activeDayId,
+  onStart,
+  onResume,
+  onViewHistory,
+  timerActive = false,
+}: HomeScreenProps) {
   return (
-    <div className="min-h-screen bg-gray-950 px-4 pt-6 pb-24">
+    <div className={`min-h-screen bg-gray-950 px-4 pt-6 ${timerActive ? 'pb-48' : 'pb-24'}`}>
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 pt-safe">
         <div className="flex items-center gap-2 mb-1">
           <Dumbbell className="w-7 h-7 text-violet-400" />
           <h1 className="text-2xl font-black text-white tracking-tight">GymPulse</h1>
@@ -105,9 +112,10 @@ export function HomeScreen({ activeDayId, onStart, onResume, onViewHistory }: Ho
 
       {/* Active session banner */}
       {activeDayId && (
-        <div
+        <button
+          type="button"
           onClick={onResume}
-          className="mb-6 p-4 rounded-2xl bg-green-900/40 border border-green-700/50 flex items-center justify-between cursor-pointer active:opacity-80 transition-opacity"
+          className="w-full text-left mb-6 p-4 rounded-2xl bg-green-900/40 border border-green-700/50 flex items-center justify-between cursor-pointer active:opacity-80 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
         >
           <div>
             <p className="text-xs text-green-400 font-semibold uppercase tracking-wider mb-0.5">Active Workout</p>
@@ -116,7 +124,7 @@ export function HomeScreen({ activeDayId, onStart, onResume, onViewHistory }: Ho
             </p>
           </div>
           <ChevronRight className="w-6 h-6 text-green-400 flex-shrink-0" />
-        </div>
+        </button>
       )}
 
       {/* Day cards */}
@@ -135,7 +143,7 @@ export function HomeScreen({ activeDayId, onStart, onResume, onViewHistory }: Ho
       {/* History link */}
       <button
         onClick={onViewHistory}
-        className="w-full py-3 rounded-xl border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 font-semibold text-sm transition-colors"
+        className="w-full py-3 rounded-xl border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 font-semibold text-sm transition-colors active:scale-[0.98]"
       >
         View Workout History
       </button>

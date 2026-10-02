@@ -1,9 +1,8 @@
-import { v4 as uuid } from './uuid';
 import type { WorkoutDay } from '../types';
 
-function makeSet(setNumber: number, weight: number, reps: number) {
+function makeSet(id: string, setNumber: number, weight: number, reps: number) {
   return {
-    id: uuid(),
+    id,
     setNumber,
     weight,
     reps,
@@ -11,13 +10,13 @@ function makeSet(setNumber: number, weight: number, reps: number) {
   };
 }
 
-function makeExercise(name: string, targetReps: string, defaultWeight: number, numSets: number) {
+function makeExercise(id: string, name: string, targetReps: string, defaultWeight: number, numSets: number) {
   return {
-    id: uuid(),
+    id,
     name,
     targetReps,
     sets: Array.from({ length: numSets }, (_, i) =>
-      makeSet(i + 1, defaultWeight, parseInt(targetReps.split('-')[0], 10))
+      makeSet(`${id}-s${i + 1}`, i + 1, defaultWeight, parseInt(targetReps.split('-')[0], 10))
     ),
   };
 }
@@ -35,8 +34,8 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 1',
         restTarget: 90,
         exercises: [
-          makeExercise('Incline Dumbbell Press', '8-10', 22.5, 3),
-          makeExercise('Lat Pulldown / Pull-ups', '8-10', 50, 3),
+          makeExercise('day1-ss1-ex1', 'Incline Dumbbell Press', '8-10', 22.5, 3),
+          makeExercise('day1-ss1-ex2', 'Lat Pulldown / Pull-ups', '8-10', 50, 3),
         ],
       },
       {
@@ -44,8 +43,8 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 2',
         restTarget: 75,
         exercises: [
-          makeExercise('Chest Press Machine / Dips', '8-10', 40, 3),
-          makeExercise('Chest-Supported Dumbbell Row', '8-10', 20, 3),
+          makeExercise('day1-ss2-ex1', 'Chest Press Machine / Dips', '8-10', 40, 3),
+          makeExercise('day1-ss2-ex2', 'Chest-Supported Dumbbell Row', '8-10', 20, 3),
         ],
       },
       {
@@ -53,8 +52,8 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 3',
         restTarget: 60,
         exercises: [
-          makeExercise('Dumbbell Lateral Raises', '12-15', 10, 3),
-          makeExercise('Cable Face Pulls', '15', 15, 3),
+          makeExercise('day1-ss3-ex1', 'Dumbbell Lateral Raises', '12-15', 10, 3),
+          makeExercise('day1-ss3-ex2', 'Cable Face Pulls', '15', 15, 3),
         ],
       },
     ],
@@ -72,8 +71,8 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 1',
         restTarget: 90,
         exercises: [
-          makeExercise('Leg Press / Hack Squat', '8-10', 80, 3),
-          makeExercise('Dumbbell Romanian Deadlift (RDL)', '8-10', 30, 3),
+          makeExercise('day2-ss1-ex1', 'Leg Press / Hack Squat', '8-10', 80, 3),
+          makeExercise('day2-ss1-ex2', 'Dumbbell Romanian Deadlift (RDL)', '8-10', 30, 3),
         ],
       },
       {
@@ -81,8 +80,8 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 2',
         restTarget: 60,
         exercises: [
-          makeExercise('Leg Extension', '10-12', 40, 3),
-          makeExercise('Lying Leg Curl', '10-12', 35, 3),
+          makeExercise('day2-ss2-ex1', 'Leg Extension', '10-12', 40, 3),
+          makeExercise('day2-ss2-ex2', 'Lying Leg Curl', '10-12', 35, 3),
         ],
       },
       {
@@ -90,7 +89,7 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Finisher',
         restTarget: 45,
         exercises: [
-          makeExercise('Standing Calf Raises', '15', 60, 3),
+          makeExercise('day2-finisher-ex1', 'Standing Calf Raises', '15', 60, 3),
         ],
       },
     ],
@@ -108,8 +107,8 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 1',
         restTarget: 75,
         exercises: [
-          makeExercise('Incline Dumbbell Curl', '8-10', 12.5, 3),
-          makeExercise('Overhead Cable Triceps Extension', '10-12', 15, 3),
+          makeExercise('day3-ss1-ex1', 'Incline Dumbbell Curl', '8-10', 12.5, 3),
+          makeExercise('day3-ss1-ex2', 'Overhead Cable Triceps Extension', '10-12', 15, 3),
         ],
       },
       {
@@ -117,8 +116,8 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 2',
         restTarget: 60,
         exercises: [
-          makeExercise('Hammer Curls', '10-12', 14, 3),
-          makeExercise('Cable Triceps Rope Pushdown', '10-12', 20, 3),
+          makeExercise('day3-ss2-ex1', 'Hammer Curls', '10-12', 14, 3),
+          makeExercise('day3-ss2-ex2', 'Cable Triceps Rope Pushdown', '10-12', 20, 3),
         ],
       },
       {
@@ -126,8 +125,8 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 3',
         restTarget: 60,
         exercises: [
-          makeExercise('Dumbbell Shoulder Press', '10', 17.5, 3),
-          makeExercise('Hanging Leg Raises', '12-15', 0, 3),
+          makeExercise('day3-ss3-ex1', 'Dumbbell Shoulder Press', '10', 17.5, 3),
+          makeExercise('day3-ss3-ex2', 'Hanging Leg Raises', '12-15', 0, 3),
         ],
       },
     ],

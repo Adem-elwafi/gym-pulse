@@ -11,26 +11,46 @@ import type { ActiveSession, ExerciseSet, SessionStats, WorkoutHistoryEntry } fr
 
 export function useWorkoutSession() {
   const [session, setSession] = useState<ActiveSession | null>(() => loadActiveSession());
-  const [elapsed, setElapsed] = useState(0);
+  const [elapsed, setElapsed] = useState<number>(() => {
+    const s = loadActiveSession();
+    return s ? Math.max(0, Math.floor((Date.now() - s.startedAt) / 1000)) : 0;
+  });
   const timerRef = useRef<number | null>(null);
+
+  const startedAt = session?.startedAt;
 
   // Elapsed timer
   useEffect(() => {
-    if (!session) {
+    if (startedAt === undefined) {
       if (timerRef.current !== null) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
-      setElapsed(0);
       return;
     }
+
     timerRef.current = window.setInterval(() => {
-      setElapsed(Math.floor((Date.now() - session.startedAt) / 1000));
+      setElapsed(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)));
     }, 1000);
     return () => {
-      if (timerRef.current !== null) clearInterval(timerRef.current);
+      if (timerRef.current !== null) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  }, [session?.startedAt]);
+  }, [startedAt]);
+
+  // Recalculate elapsed immediately on tab visibility change
+  useEffect(() => {
+    if (startedAt === undefined) return;
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        setElapsed(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)));
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [startedAt]);
 
   // Persist on every change
   useEffect(() => {
@@ -101,7 +121,10 @@ export function useWorkoutSession() {
     if (!session) return;
     const day = WORKOUT_DAYS.find((d) => d.id === session.dayId);
     const completedSets = Object.values(session.sets).filter((s) => s.completed);
-    const totalVolume = completedSets.reduce((sum, s) => sum + s.weight * s.reps, 0);
+    const totalVolume = completedSets.reduce(
+      (sum, s) => sum + (Number(s.weight) || 0) * (Number(s.reps) || 0),
+      0
+    );
 
     const entry: WorkoutHistoryEntry = {
       id: uuid(),
@@ -126,7 +149,10 @@ export function useWorkoutSession() {
     ? (() => {
         const completed = Object.values(session.sets).filter((s) => s.completed);
         return {
-          totalVolume: completed.reduce((sum, s) => sum + s.weight * s.reps, 0),
+          totalVolume: completed.reduce(
+            (sum, s) => sum + (Number(s.weight) || 0) * (Number(s.reps) || 0),
+            0
+          ),
           completedSets: completed.length,
           elapsedSeconds: elapsed,
         };

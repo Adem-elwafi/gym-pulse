@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
-/* ── Custom utilities ─────────────────────────────────────────────────── */
+/* ── Custom utilities & Safe Areas ─────────────────────────────────────── */
+.pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
 .pb-safe {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
@@ -9,15 +13,24 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* ── Smooth scrolling ─────────────────────────────────────────────────── */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Smooth scrolling & Base ───────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  @apply bg-gray-950 text-white;
+  @apply bg-gray-950 text-white antialiased selection:bg-violet-600 selection:text-white;
   overscroll-behavior-y: none;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 /* ── Custom scrollbar ─────────────────────────────────────────────────── */
@@ -32,7 +45,8 @@ body {
   @apply bg-gray-700 rounded-full;
 }
 
-/* ── Input styles ─────────────────────────────────────────────────────── */
+
+/* ── Input styles & iOS Safari Auto-Zoom Fix ──────────────────────────── */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -42,7 +56,25 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+@media screen and (max-width: 768px) {
+  input[type="number"],
+  input[type="text"] {
+    font-size: 16px !important;
+  }
+}
+
 /* ── Animations ───────────────────────────────────────────────────────── */
+@keyframes flash-screen {
+  0% { opacity: 0; }
+  30% { opacity: 0.25; }
+  60% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+.animate-flash-screen {
+  animation: flash-screen 1.2s ease-out forwards;
+}
+
 @keyframes flash-green {
   0% { opacity: 0.3; }
   50% { opacity: 0.6; }

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import type { ReactNode } from 'react';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -11,7 +12,6 @@ import { WORKOUT_DAYS } from '../data/workouts';
 import { SetRow } from './SetRow';
 import { ExerciseImage } from './ExerciseImage';
 import type { ActiveSession, SessionStats, ExerciseSet } from '../types';
-import type { ReactNode } from 'react';
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -34,7 +34,7 @@ interface WorkoutScreenProps {
   timerActive: boolean;
 }
 
-export function WorkoutScreen({
+export const WorkoutScreen = memo(function WorkoutScreen({
   session,
   stats,
   onUpdateSet,
@@ -57,7 +57,7 @@ export function WorkoutScreen({
   return (
     <div className={timerActive ? 'min-h-screen bg-gray-950 pb-48' : 'min-h-screen bg-gray-950 pb-24'}>
       {/* Sticky header */}
-      <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-sm border-b border-gray-800">
+      <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-sm border-b border-gray-800 pt-safe">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
             onClick={onBack}
@@ -67,8 +67,8 @@ export function WorkoutScreen({
             <ArrowLeft className="w-4 h-4 text-gray-300" />
           </button>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 uppercase tracking-wider">Day {day.day}</p>
-            <h2 className="text-base font-bold text-white truncate">{day.title}</h2>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Day {day.day}</p>
+            <h2 className="text-lg font-bold tracking-tight text-white truncate">{day.title}</h2>
           </div>
           <button
             onClick={() => setShowFinishConfirm(true)}
@@ -79,16 +79,23 @@ export function WorkoutScreen({
         </div>
 
         {/* Stats strip */}
-        <div className="flex items-center gap-0 px-4 pb-3 overflow-x-auto">
-          <StatChip icon={<Clock className="w-3.5 h-3.5" />} value={formatDuration(stats.elapsedSeconds)} label="Time" />
-          <div className="w-px h-8 bg-gray-800 mx-3" />
+        <div className="flex items-center gap-0 px-4 pb-3 overflow-x-auto scrollbar-none">
+          <ElapsedTimeChip startedAt={session.startedAt} />
+          <div className="w-px h-8 bg-gray-800 mx-3 flex-shrink-0" />
           <StatChip icon={<CheckCircle2 className="w-3.5 h-3.5" />} value={`${stats.completedSets}/${totalSets}`} label="Sets" />
-          <div className="w-px h-8 bg-gray-800 mx-3" />
+          <div className="w-px h-8 bg-gray-800 mx-3 flex-shrink-0" />
           <StatChip icon={<TrendingUp className="w-3.5 h-3.5" />} value={`${stats.totalVolume.toFixed(0)}kg`} label="Volume" />
         </div>
 
         {/* Progress bar */}
-        <div className="h-0.5 bg-gray-800">
+        <div
+          className="h-0.5 bg-gray-800"
+          role="progressbar"
+          aria-valuenow={Math.round(progressPct)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Workout progress"
+        >
           <div
             className="h-full bg-gradient-to-r from-violet-600 to-purple-500 transition-all duration-500"
             style={{ width: `${progressPct}%` }}
@@ -103,8 +110,8 @@ export function WorkoutScreen({
             {/* Superset header */}
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-sm font-bold text-white">{ss.label}</h3>
-                <p className="text-xs text-gray-500">Rest target: {ss.restTarget}s</p>
+                <h3 className="text-base font-extrabold tracking-tight text-white">{ss.label}</h3>
+                <p className="text-xs text-gray-400">Rest target: {ss.restTarget}s</p>
               </div>
               <span className="px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs">
                 <Dumbbell className="w-3 h-3 inline mr-1" />
@@ -153,7 +160,7 @@ export function WorkoutScreen({
                               {ex.name}
                             </h4>
                           </div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-400">
                             {allSetsForEx.length} sets · {ex.targetReps} reps
                           </p>
                         </div>
@@ -179,12 +186,13 @@ export function WorkoutScreen({
                     {/* Sets */}
                     <div className="px-3 pb-3 space-y-2">
                       {allSetsForEx.map((s) => (
-                        <SetRow
+                        <WorkoutSetRow
                           key={s.id}
                           set={s}
-                          onChange={(updates) => onUpdateSet(s.id, updates)}
-                          onComplete={() => onCompleteSet(s.id, ss.restTarget)}
-                          onUncomplete={() => onUncompleteSet(s.id)}
+                          restTarget={ss.restTarget}
+                          onUpdateSet={onUpdateSet}
+                          onCompleteSet={onCompleteSet}
+                          onUncompleteSet={onUncompleteSet}
                         />
                       ))}
                     </div>
@@ -201,7 +209,7 @@ export function WorkoutScreen({
         {/* Discard button */}
         <button
           onClick={() => setShowDiscardConfirm(true)}
-          className="w-full py-3 rounded-xl border border-red-900/50 text-red-500 hover:bg-red-900/10 active:bg-red-900/20 font-semibold text-sm transition-colors"
+          className="w-full py-3 rounded-xl border border-red-800/60 text-red-400 hover:bg-red-900/20 active:bg-red-900/30 font-semibold text-sm transition-colors"
         >
           Discard Workout
         </button>
@@ -233,9 +241,70 @@ export function WorkoutScreen({
       )}
     </div>
   );
-}
+});
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
+
+interface WorkoutSetRowProps {
+  set: ExerciseSet;
+  restTarget: number;
+  onUpdateSet: (setId: string, updates: Partial<ExerciseSet>) => void;
+  onCompleteSet: (setId: string, restTarget: number) => void;
+  onUncompleteSet: (setId: string) => void;
+}
+
+const WorkoutSetRow = memo(function WorkoutSetRow({
+  set,
+  restTarget,
+  onUpdateSet,
+  onCompleteSet,
+  onUncompleteSet,
+}: WorkoutSetRowProps) {
+  const handleChange = useCallback(
+    (updates: Partial<ExerciseSet>) => {
+      onUpdateSet(set.id, updates);
+    },
+    [onUpdateSet, set.id]
+  );
+
+  const handleComplete = useCallback(() => {
+    onCompleteSet(set.id, restTarget);
+  }, [onCompleteSet, set.id, restTarget]);
+
+  const handleUncomplete = useCallback(() => {
+    onUncompleteSet(set.id);
+  }, [onUncompleteSet, set.id]);
+
+  return (
+    <SetRow
+      set={set}
+      onChange={handleChange}
+      onComplete={handleComplete}
+      onUncomplete={handleUncomplete}
+    />
+  );
+});
+
+function ElapsedTimeChip({ startedAt }: { startedAt: number }) {
+  const [elapsedSeconds, setElapsedSeconds] = useState(() =>
+    Math.max(0, Math.floor((Date.now() - startedAt) / 1000))
+  );
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setElapsedSeconds(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [startedAt]);
+
+  return (
+    <StatChip
+      icon={<Clock className="w-3.5 h-3.5" />}
+      value={formatDuration(elapsedSeconds)}
+      label="Time"
+    />
+  );
+}
 
 function StatChip({ icon, value, label }: { icon: ReactNode; value: string; label: string }) {
   return (
@@ -243,7 +312,7 @@ function StatChip({ icon, value, label }: { icon: ReactNode; value: string; labe
       <span className="text-violet-400">{icon}</span>
       <div>
         <p className="text-sm font-bold text-white leading-none">{value}</p>
-        <p className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</p>
+        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{label}</p>
       </div>
     </div>
   );
@@ -260,16 +329,38 @@ interface ConfirmDialogProps {
 }
 
 function ConfirmDialog({ title, message, confirmLabel, confirmClass, icon, onConfirm, onCancel }: ConfirmDialogProps) {
+  const cancelBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    cancelBtnRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onCancel();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onCancel]);
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[60] flex items-end justify-center p-4 bg-black/60 backdrop-blur-sm"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirm-dialog-title"
+      aria-describedby="confirm-dialog-desc"
+    >
       <div className="w-full max-w-md rounded-2xl bg-gray-900 border border-gray-800 p-6 shadow-2xl">
         {icon && <div className="mb-3">{icon}</div>}
-        <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-        <p className="text-gray-400 text-sm mb-6">{message}</p>
+        <h3 id="confirm-dialog-title" className="text-lg font-bold text-white mb-2">{title}</h3>
+        <p id="confirm-dialog-desc" className="text-gray-400 text-sm mb-6">{message}</p>
         <div className="flex gap-3">
           <button
+            ref={cancelBtnRef}
             onClick={onCancel}
-            className="flex-1 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold text-sm transition-colors"
+            className="flex-1 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             Cancel
           </button>
