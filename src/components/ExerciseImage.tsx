@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { Dumbbell } from 'lucide-react';
 import { EXERCISE_IMAGES } from '../data/exerciseImages';
 
@@ -24,9 +24,17 @@ export const ExerciseImage = memo(function ExerciseImage({
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
   const [failedFrames, setFailedFrames] = useState<Record<number, boolean>>({});
+  const imgRef = useRef<HTMLImageElement>(null);
 
   const src = frames?.[frameIdx] ?? null;
   const hasSecondFrame = Boolean(frames?.[1]) && !failedFrames[1];
+
+  // Immediately mark loaded if the browser has cached the image
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      setLoaded(true);
+    }
+  }, [src]);
 
   const handleClick = () => {
     if (hasSecondFrame && loaded && !errored) {
@@ -75,9 +83,11 @@ export const ExerciseImage = memo(function ExerciseImage({
       )}
 
       <img
+        ref={imgRef}
         src={src}
         alt={exerciseName}
         loading="lazy"
+        referrerPolicy="no-referrer"
         onLoad={() => setLoaded(true)}
         onError={() => {
           setFailedFrames((prev) => ({ ...prev, [frameIdx]: true }));
