@@ -22,11 +22,11 @@ function makeExercise(id: string, name: string, targetReps: string, defaultWeigh
 }
 
 export const WORKOUT_DAYS: WorkoutDay[] = [
-  // ─── Day 1: Upper SuperSet ─────────────────────────────────────────────────
+  // ─── Day 1: Upper A (Pecs, Dos & Épaules) ──────────────────────────────────
   {
     id: 'day-1',
     day: 1,
-    title: 'Upper SuperSet',
+    title: 'Upper A (Pecs & Dos)',
     duration: '~32 min',
     supersets: [
       {
@@ -59,11 +59,11 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
     ],
   },
 
-  // ─── Day 2: Lower SuperSet ─────────────────────────────────────────────────
+  // ─── Day 2: Lower A (Cuisses, Ischios & Mollets - Foot Ready) ──────────────
   {
     id: 'day-2',
     day: 2,
-    title: 'Lower SuperSet',
+    title: 'Lower A (Force & Puissance)',
     duration: '~30 min',
     supersets: [
       {
@@ -95,20 +95,20 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
     ],
   },
 
-  // ─── Day 3: Arms & Shoulders SuperSet ────────────────────────────────────
+  // ─── Day 3: Upper B (Épaules & Bras Express) ───────────────────────────────
   {
     id: 'day-3',
     day: 3,
-    title: 'Arms & Shoulders SuperSet',
-    duration: '~30 min',
+    title: 'Upper B (Épaules & Bras)',
+    duration: '~32 min',
     supersets: [
       {
         id: 'day3-ss1',
         label: 'Superset 1',
         restTarget: 75,
         exercises: [
-          makeExercise('day3-ss1-ex1', 'Incline Dumbbell Curl', '8-10', 12.5, 3),
-          makeExercise('day3-ss1-ex2', 'Overhead Cable Triceps Extension', '10-12', 15, 3),
+          makeExercise('day3-ss1-ex1', 'Dumbbell Shoulder Press', '8-10', 17.5, 3),
+          makeExercise('day3-ss1-ex2', 'Chest-Supported Dumbbell Row', '8-10', 22.5, 3),
         ],
       },
       {
@@ -116,8 +116,8 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 2',
         restTarget: 60,
         exercises: [
-          makeExercise('day3-ss2-ex1', 'Hammer Curls', '10-12', 14, 3),
-          makeExercise('day3-ss2-ex2', 'Cable Triceps Rope Pushdown', '10-12', 20, 3),
+          makeExercise('day3-ss2-ex1', 'Incline Dumbbell Curl', '10-12', 12.5, 3),
+          makeExercise('day3-ss2-ex2', 'Overhead Cable Triceps Extension', '10-12', 15, 3),
         ],
       },
       {
@@ -125,8 +125,45 @@ export const WORKOUT_DAYS: WorkoutDay[] = [
         label: 'Superset 3',
         restTarget: 60,
         exercises: [
-          makeExercise('day3-ss3-ex1', 'Dumbbell Shoulder Press', '10', 17.5, 3),
-          makeExercise('day3-ss3-ex2', 'Hanging Leg Raises', '12-15', 0, 3),
+          makeExercise('day3-ss3-ex1', 'Hammer Curls', '10-12', 14, 3),
+          makeExercise('day3-ss3-ex2', 'Cable Triceps Rope Pushdown', '10-12', 20, 3),
+        ],
+      },
+    ],
+  },
+
+  // ─── Day 4: Lower B & Core (Ischios, Abdos & Mobilité) ──────────────────────
+  {
+    id: 'day-4',
+    day: 4,
+    title: 'Lower B & Core (Abdos & Ischios)',
+    duration: '~30 min',
+    supersets: [
+      {
+        id: 'day4-ss1',
+        label: 'Superset 1',
+        restTarget: 75,
+        exercises: [
+          makeExercise('day4-ss1-ex1', 'Dumbbell Romanian Deadlift (RDL)', '10-12', 30, 3),
+          makeExercise('day4-ss1-ex2', 'Leg Extension', '10-12', 40, 3),
+        ],
+      },
+      {
+        id: 'day4-ss2',
+        label: 'Superset 2',
+        restTarget: 60,
+        exercises: [
+          makeExercise('day4-ss2-ex1', 'Lying Leg Curl', '10-12', 35, 3),
+          makeExercise('day4-ss2-ex2', 'Dumbbell Lateral Raises', '12-15', 10, 3),
+        ],
+      },
+      {
+        id: 'day4-ss3',
+        label: 'Superset 3',
+        restTarget: 45,
+        exercises: [
+          makeExercise('day4-ss3-ex1', 'Hanging Leg Raises', '12-15', 0, 3),
+          makeExercise('day4-ss3-ex2', 'Standing Calf Raises', '15', 60, 3),
         ],
       },
     ],

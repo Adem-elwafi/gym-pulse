@@ -20,6 +20,7 @@ function DayCard({ day, isActive, onStart, onResume }: DayCardProps) {
     1: 'from-violet-600 to-purple-700',
     2: 'from-cyan-600 to-blue-700',
     3: 'from-orange-500 to-red-600',
+    4: 'from-emerald-500 to-teal-600',
   };
 
   return (
@@ -107,7 +108,7 @@ export function HomeScreen({
           <Dumbbell className="w-7 h-7 text-violet-400" />
           <h1 className="text-2xl font-black text-white tracking-tight">GymPulse</h1>
         </div>
-        <p className="text-gray-400 text-sm">3-Day Express Superset Program</p>
+        <p className="text-gray-400 text-sm">4-Day Express Superset Program</p>
       </div>
 
       {/* Active session banner */}
