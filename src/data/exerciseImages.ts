@@ -84,3 +84,28 @@ export const EXERCISE_IMAGES: Record<string, [string, string?]> = {
     `${BASE}/Hanging_Leg_Raise/1.jpg`,
   ],
 };
+
+/**
+ * Silently prefetches all exercise images into the Service Worker cache in background
+ * so they are immediately available offline without data.
+ */
+export function prefetchAllExerciseImages(): void {
+  if (typeof window === 'undefined' || !navigator.onLine) return;
+  const urls: string[] = [];
+  for (const pair of Object.values(EXERCISE_IMAGES)) {
+    if (pair[0]) urls.push(pair[0]);
+    if (pair[1]) urls.push(pair[1]);
+  }
+
+  const prefetch = () => {
+    urls.forEach((url) => {
+      fetch(url, { mode: 'no-cors' }).catch(() => {});
+    });
+  };
+
+  if ('requestIdleCallback' in window) {
+    (window as Window & { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(prefetch);
+  } else {
+    setTimeout(prefetch, 2000);
+  }
+}
